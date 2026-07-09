@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DetraGO — Il cliente detrae, tu vendi.</title>
+  <meta name="description" content="DetraGO è il bonifico parlante istantaneo che elimina l'abbandono del carrello sui prodotti in detrazione fiscale. Integra ora nel tuo e-commerce."/>
+  <meta name="keywords" content="DetraGO, bonifico parlante, detrazioni fiscali, e-commerce, checkout, CGN Fintech, ecobonus, bonus casa, conversioni"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #050A14;
+      --bg2:      #080F1E;
+      --surface:  #0D1830;
+      --card:     #111F38;
+      --teal:     #00CCCC;
+      --teal2:    #00AAAA;
+      --violet:   #6B3FD4;
+      --violet2:  #A78BFA;
+      --blend:    #338ECC;
+      --white:    #FFFFFF;
+      --offwhite: #F4F7FF;
+      --text-hi:  #FFFFFF;       /* testo primario — bianco puro */
+      --text-md:  #D4E0F0;       /* testo secondario — azzurro chiaro */
+      --text-lo:  #8AA4C8;       /* testo terziario — ancora leggibile */
+      --navy-txt: #1A2B4A;       /* testo su sfondo bianco */
+      --muted-w:  #4A6080;       /* muted su sfondo bianco */
+      --border:   rgba(0,204,204,0.18);
+      --border2:  rgba(255,255,255,0.10);
+      --grad:     linear-gradient(135deg, #00CCCC 0%, #338ECC 50%, #6B3FD4 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-md);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.025) 2px, rgba(0,0,0,.025) 4px);
+      pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px; height: 68px;
+      background: rgba(5,10,20,0.94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-lo); text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+
+    .btn-nav-ghost {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 9px 22px; border-radius: 6px;
+      background: transparent; color: var(--teal); border: 1.5px solid var(--border);
+      text-decoration: none; cursor: pointer; transition: all .2s;
+    }
+    .btn-nav-ghost:hover { background: rgba(0,204,204,.1); border-color: var(--teal); }
+
+    .btn-nav-solid {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 9px 22px; border-radius: 6px;
+      background: var(--teal); color: var(--bg); border: none;
+      text-decoration: none; cursor: pointer; transition: all .2s;
+    }
+    .btn-nav-solid:hover { background: var(--teal2); }
+
+    /* ── HERO — FULL ABOVE THE FOLD ── */
+    .hero {
+      height: 100vh; min-height: 700px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 52px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Griglia di sfondo */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,204,204,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,204,204,.05) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 10%, transparent 75%);
+    }
+
+    /* Glow radiale */
+    .hero::after {
+      content: '';
+      position: absolute; top: 10%; left: 15%;
+      width: 700px; height: 600px;
+      background: radial-gradient(ellipse,
+        rgba(0,204,204,.12) 0%,
+        rgba(107,63,212,.07) 45%,
+        transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Angoli decorativi HUD */
+    .hud-corner {
+      position: absolute; width: 36px; height: 36px;
+    }
+    .hud-corner::before, .hud-corner::after {
+      content: ''; position: absolute; background: rgba(0,204,204,.5);
+    }
+    .hud-corner::before { height: 2px; width: 100%; }
+    .hud-corner::after  { width: 2px; height: 100%; }
+    .hud-tl { top: 72px; left: 52px; }
+    .hud-tl::before { top:0; left:0; }
+    .hud-tl::after  { top:0; left:0; }
+    .hud-tr { top: 72px; right: 52px; transform: scaleX(-1); }
+    .hud-tr::before { top:0; left:0; }
+    .hud-tr::after  { top:0; left:0; }
+    .hud-bl { bottom: 24px; left: 52px; transform: scaleY(-1); }
+    .hud-bl::before { top:0; left:0; }
+    .hud-bl::after  { top:0; left:0; }
+    .hud-br { bottom: 24px; right: 52px; transform: scale(-1); }
+    .hud-br::before { top:0; left:0; }
+    .hud-br::after  { top:0; left:0; }
+
+    .hero-left { position: relative; z-index: 1; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--teal);
+      background: rgba(0,204,204,.08);
+      border: 1px solid rgba(0,204,204,.3);
+      padding: 7px 16px; border-radius: 4px;
+      margin-bottom: 28px;
+      animation: fadeUp .4s ease both;
+    }
+    .hero-eyebrow::before { content: '>'; color: var(--violet2); margin-right: 2px; }
+
+    .hero h1 {
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 800; letter-spacing: -2.5px; line-height: 1.0;
+      color: var(--text-hi);
+      margin-bottom: 8px;
+      animation: fadeUp .4s .08s ease both;
+    }
+    .hero h1 span {
+      background: var(--grad); -webkit-background-clip: text;
+      background-clip: text; color: transparent;
+    }
+
+    .hero-tagline {
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 700; letter-spacing: -.3px;
+      color: var(--text-hi); opacity: .85;
+      margin-bottom: 16px;
+      animation: fadeUp .4s .14s ease both;
+    }
+
+    .hero-sub {
+      font-size: 16px; font-weight: 500;
+      color: var(--text-md);
+      line-height: 1.75; margin-bottom: 40px;
+      max-width: 500px;
+      animation: fadeUp .4s .2s ease both;
+    }
+    .hero-sub strong { color: var(--text-hi); font-weight: 700; }
+
+    .hero-cta-row {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      animation: fadeUp .4s .26s ease both;
+    }
+
+    .btn-hero {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px; font-weight: 800;
+      padding: 16px 32px; border-radius: 8px;
+      text-decoration: none; cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all .2s;
+    }
+    .btn-hero-primary {
+      background: var(--teal); color: var(--bg);
+      box-shadow: 0 0 32px rgba(0,204,204,.25);
+    }
+    .btn-hero-primary:hover { background: var(--teal2); transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,204,204,.35); }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; color: var(--text-lo); letter-spacing: .12em; text-transform: uppercase;
+      z-index: 1; animation: fadeUp .5s .6s ease both;
+    }
+    .scroll-arrow {
+      width: 18px; height: 28px; border: 1.5px solid rgba(0,204,204,.3);
+      border-radius: 10px; display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;
+    }
+    .scroll-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--teal); animation: scrollDot 2s ease infinite; }
+    @keyframes scrollDot { 0%,100%{transform:translateY(0);opacity:1} 80%{transform:translateY(10px);opacity:0} }
+
+    /* Hero right: vantaggi card */
+    .hero-right {
+      position: relative; z-index: 1;
+      animation: fadeUp .5s .3s ease both;
+      display: flex; flex-direction: column; gap: 12px;
+      padding-left: 40px;
+    }
+
+    .hero-vantaggio {
+      background: rgba(13,24,48,.85);
+      border: 1px solid var(--border2);
+      border-radius: 14px; padding: 20px 22px;
+      backdrop-filter: blur(10px);
+      display: flex; gap: 14px; align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .hero-vantaggio:hover { border-color: rgba(0,204,204,.35); }
+    .hv-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .hv-icon-teal   { background: rgba(0,204,204,.12); border: 1px solid rgba(0,204,204,.2); }
+    .hv-icon-violet { background: rgba(107,63,212,.12); border: 1px solid rgba(107,63,212,.2); }
+    .hv-icon-green  { background: rgba(40,202,65,.10); border: 1px solid rgba(40,202,65,.2); }
+    .hv-text strong { display: block; font-size: 14px; font-weight: 800; color: var(--text-hi); margin-bottom: 3px; }
+    .hv-text span   { font-size: 13px; color: var(--text-md); font-weight: 500; line-height: 1.5; }
+
+    /* ── TICKER ── */
+    .ticker { overflow: hidden; background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .ticker-track { display: flex; animation: ticker 28s linear infinite; white-space: nowrap; }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 14px 36px; border-right: 1px solid var(--border2);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: .05em; color: var(--text-lo); flex-shrink: 0;
+    }
+    .ticker-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+    .ticker-item strong { color: var(--teal); font-weight: 700; }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+
+    /* ── SEZIONE GENERICA ── */
+    .section { max-width: 1160px; margin: 0 auto; padding: 96px 52px; }
+
+    .sec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 12px; display: block;
+    }
+    .sec-label::before { content: '// '; color: var(--violet2); }
+    .sec-label.dark { color: var(--teal2); }
+    .sec-label.dark::before { color: var(--violet); }
+
+    h2.dark-h { font-size: clamp(28px, 3.5vw, 48px); font-weight: 800; letter-spacing: -2px; color: var(--navy-txt); line-height: 1.08; margin-bottom: 16px; }
+    h2.light-h { font-size: clamp(28px, 3.5vw, 48px); font-weight: 800; letter-spacing: -2px; color: var(--text-hi); line-height: 1.08; margin-bottom: 16px; }
+    h2 .dim-light { color: var(--muted-w); font-weight: 500; }
+    h2 .dim-dark  { color: var(--text-lo); font-weight: 500; }
+
+    .lead-dark  { font-size: 17px; font-weight: 600; color: var(--navy-txt); line-height: 1.75; max-width: 600px; }
+    .lead-light { font-size: 17px; font-weight: 500; color: var(--text-md); line-height: 1.75; max-width: 600px; }
+    .lead-light strong { color: var(--text-hi); font-weight: 700; }
+
+    /* ── SFONDO BIANCO sezioni ── */
+    .bg-white { background: #FFFFFF; }
+    .bg-off   { background: var(--offwhite); }
+    .bg-dark  { background: var(--bg2); border-top:1px solid var(--border2); border-bottom:1px solid var(--border2); }
+
+    /* ── VIDEO ── */
+    .video-section { text-align: center; }
+    .video-h {
+      font-size: clamp(22px, 2.8vw, 38px);
+      font-weight: 800; letter-spacing: -1.5px;
+      color: var(--navy-txt); margin-bottom: 40px;
+      line-height: 1.15;
+    }
+    .video-placeholder {
+      background: #111F38; border: 1px solid rgba(0,204,204,.2);
+      border-radius: 16px; max-width: 800px; margin: 0 auto;
+      aspect-ratio: 16/9;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      position: relative; overflow: hidden;
+    }
+    .video-placeholder::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,204,204,.07), transparent 65%); }
+    .play-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; cursor: pointer; transition: all .2s; box-shadow: 0 0 0 14px rgba(0,204,204,.10), 0 0 0 28px rgba(0,204,204,.05); }
+    .play-btn:hover { transform: scale(1.08); background: var(--teal2); }
+    .play-btn svg { width: 30px; height: 30px; fill: var(--bg); margin-left: 5px; }
+    .video-note { font-size: 13px; color: var(--text-lo); font-weight: 500; position: relative; z-index: 1; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── VANTAGGI (sfondo bianco) ── */
+    .vant-intro {
+      font-size: 18px; font-weight: 700; color: var(--navy-txt);
+      margin-bottom: 8px; letter-spacing: -.3px;
+    }
+    .vant-sub {
+      font-size: 15px; font-weight: 500; color: var(--muted-w);
+      max-width: 560px; line-height: 1.7; margin-bottom: 4px;
+    }
+    .vant-italic {
+      font-size: 14px; font-style: italic; color: var(--teal2);
+      font-weight: 600; margin-bottom: 48px;
+    }
+
+    .vant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 52px; }
+
+    .vant-box {
+      background: var(--offwhite);
+      border: 1.5px solid #DDE6F0;
+      border-radius: 16px; padding: 32px 28px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .vant-box:hover { box-shadow: 0 8px 32px rgba(26,43,74,.1); transform: translateY(-3px); }
+    .vant-box .vb-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+    .vant-box h3 { font-size: 17px; font-weight: 800; color: var(--navy-txt); margin-bottom: 12px; letter-spacing: -.4px; }
+    .vant-box p { font-size: 14px; color: var(--muted-w); line-height: 1.75; font-weight: 500; }
+    .vant-box p strong { color: var(--navy-txt); font-weight: 700; }
+
+    /* Standard block su sfondo bianco */
+    .standard-block { border-top: 1.5px solid #DDE6F0; padding-top: 48px; }
+    .sb-head { font-size: clamp(20px, 2.5vw, 30px); font-weight: 800; letter-spacing: -1px; color: var(--navy-txt); margin-bottom: 28px; }
+
+    .why-grid-w { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; }
+    .why-card-w {
+      background: #FFFFFF; border: 1.5px solid #DDE6F0;
+      border-radius: 14px; padding: 24px 22px;
+      display: flex; gap: 14px; align-items: flex-start;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .why-card-w:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(0,170,170,.1); }
+    .why-icon-w { font-size: 22px; flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .wi-teal-w   { background: #E6F7F7; }
+    .wi-violet-w { background: #F0EBF8; }
+    .why-card-w h4 { font-size: 15px; font-weight: 800; color: var(--navy-txt); margin-bottom: 5px; }
+    .why-card-w p  { font-size: 13px; color: var(--muted-w); line-height: 1.65; }
+
+    /* Sicurezza bar su bianco */
+    .security-box-w {
+      background: var(--navy-txt);
+      border-radius: 16px; padding: 32px 36px;
+      display: flex; align-items: flex-start; gap: 20px; margin-top: 24px;
+    }
+    .security-box-w .sb-icon { font-size: 32px; flex-shrink: 0; margin-top: 2px; }
+    .security-box-w h4 { font-size: 18px; font-weight: 800; color: #FFFFFF; margin-bottom: 8px; letter-spacing: -.3px; }
+    .security-box-w p { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.7; font-weight: 500; }
+    .security-box-w strong { color: #FFFFFF; font-weight: 700; }
+    .security-box-w .sec-note { color: var(--teal); font-weight: 700; margin-top: 8px; font-size: 14px; }
+
+    /* ── PERCHÉ — su sfondo scuro ── */
+    .perche-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 52px; align-items: start; }
+
+    .problem-list { display: flex; flex-direction: column; gap: 0; }
+    .problem-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .problem-item:last-child { border-bottom: none; }
+    .prob-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--violet2); background: rgba(107,63,212,.15); border: 1px solid rgba(107,63,212,.25); border-radius: 4px; padding: 4px 8px; flex-shrink: 0; margin-top: 1px; }
+    .problem-item p { font-size: 15px; font-weight: 500; color: var(--text-md); line-height: 1.6; }
+    .problem-item p strong { color: var(--text-hi); font-weight: 700; }
+
+    .solution-box {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 36px; position: relative; overflow: hidden;
+    }
+    .solution-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad); }
+    .sol-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--teal); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+    .sol-title { font-size: 20px; font-weight: 800; color: var(--text-hi); margin-bottom: 24px; letter-spacing: -.5px; line-height: 1.3; }
+    .sol-checks { display: flex; flex-direction: column; gap: 13px; margin-bottom: 24px; }
+    .sol-check { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text-hi); line-height: 1.5; }
+    .sol-check .ic { color: #28CA41; flex-shrink: 0; font-size: 17px; margin-top: 1px; }
+    .sol-cta { margin-top: 4px; }
+
+    /* ── CHI SIAMO — sfondo bianco ── */
+    .chisiamo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    .cs-body p { font-size: 15px; font-weight: 500; color: var(--muted-w); line-height: 1.8; margin-bottom: 14px; }
+    .cs-body p strong { color: var(--navy-txt); font-weight: 700; }
+
+    .cs-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: #DDE6F0; border: 1px solid #DDE6F0; border-radius: 14px; overflow: hidden; margin: 28px 0; }
+    .cs-stat { background: #FFFFFF; padding: 20px 16px; text-align: center; }
+    .cs-stat .num { font-size: 28px; font-weight: 800; letter-spacing: -1px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; margin-bottom: 4px; }
+    .cs-stat .lbl { font-size: 11px; color: var(--muted-w); font-weight: 600; }
+
+    /* Award banner */
+    .award-banner {
+      background: linear-gradient(135deg, var(--navy-txt) 0%, #2A3F6A 100%);
+      border-radius: 14px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+    }
+    .ab-icon { font-size: 32px; flex-shrink: 0; }
+    .ab-text h4 { font-size: 14px; font-weight: 800; color: #FFFFFF; margin-bottom: 2px; }
+    .ab-text p { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 500; }
+    .ab-badge {
+      margin-left: auto; flex-shrink: 0;
+      background: rgba(0,204,204,.15); border: 1px solid rgba(0,204,204,.3);
+      color: var(--teal); border-radius: 8px; padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+      text-align: center; line-height: 1.5;
+    }
+
+    /* Accordion certificazioni */
+    .cert-accordion { display: flex; flex-direction: column; gap: 8px; }
+    details.cert {
+      background: var(--offwhite); border: 1.5px solid #DDE6F0;
+      border-radius: 12px; overflow: hidden; transition: border-color .2s;
+    }
+    details.cert[open] { border-color: #B3D8E8; }
+    summary.cert-q {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 18px; cursor: pointer; list-style: none;
+      font-size: 15px; font-weight: 700; color: var(--navy-txt);
+      user-select: none;
+    }
+    summary.cert-q::-webkit-details-marker { display: none; }
+    .cq-icon { font-size: 18px; flex-shrink: 0; }
+    .cq-arrow { margin-left: auto; color: var(--teal2); font-size: 20px; transition: transform .2s; }
+    details[open] .cq-arrow { transform: rotate(45deg); }
+    .cert-body { padding: 4px 18px 18px 48px; font-size: 14px; color: var(--muted-w); line-height: 1.75; font-weight: 500; border-top: 1px solid #DDE6F0; padding-top: 14px; }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; margin-top: 44px; }
+    details.faq { background: var(--card); border: 1px solid var(--border2); border-radius: 12px; overflow: hidden; transition: border-color .2s; }
+    details.faq[open] { border-color: var(--border); }
+    summary.faq-q { display: flex; align-items: center; gap: 12px; padding: 18px 22px; cursor: pointer; list-style: none; user-select: none; }
+    summary.faq-q::-webkit-details-marker { display: none; }
+    .faq-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 6px; background: rgba(0,204,204,.1); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--teal); }
+    details[open] .faq-num { background: var(--teal); border-color: var(--teal); color: var(--bg); }
+    .faq-title { font-size: 16px; font-weight: 700; color: var(--text-hi); flex: 1; line-height: 1.3; }
+    .faq-sub { font-size: 13px; color: var(--text-lo); font-style: italic; }
+    .faq-arrow { margin-left: auto; color: var(--teal); font-size: 22px; transition: transform .2s; flex-shrink: 0; }
+    details[open] .faq-arrow { transform: rotate(45deg); }
+    .faq-body { margin: 0 22px 20px; background: var(--surface); border-radius: 10px; padding: 16px 20px; font-size: 15px; color: var(--text-md); line-height: 1.8; font-weight: 500; }
+    .faq-body strong { color: var(--text-hi); font-weight: 700; }
+
+    /* ── FORM ── */
+    .form-section { background: var(--bg2); border-top: 1px solid var(--border); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; }
+
+    .form-left-perks { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+    .form-perk { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text-md); }
+    .fp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, var(--teal), var(--violet)); }
+
+    .form-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 40px; }
+    .form-card h3 { font-size: 20px; font-weight: 800; color: var(--text-hi); letter-spacing: -.4px; margin-bottom: 4px; }
+    .form-card .fc-sub { font-size: 14px; color: var(--text-lo); margin-bottom: 28px; line-height: 1.6; }
+    .form-card .fc-sub strong { color: var(--text-md); font-weight: 700; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-lo); margin-bottom: 6px; }
+    .form-group label span { color: var(--teal); }
+    .form-group input, .form-group textarea { width: 100%; background: var(--bg); border: 1.5px solid rgba(255,255,255,.1); border-radius: 8px; padding: 12px 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: var(--text-hi); outline: none; transition: border-color .2s; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--teal); }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-lo); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-submit { width: 100%; margin-top: 20px; background: var(--teal); color: var(--bg); border: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; padding: 16px; border-radius: 8px; cursor: pointer; transition: all .2s; }
+    .form-submit:hover { background: var(--teal2); transform: translateY(-1px); }
+    .form-privacy { font-size: 12px; color: var(--text-lo); text-align: center; margin-top: 12px; line-height: 1.6; }
+    .form-privacy a { color: var(--text-lo); }
+
+    /* BTN generici */
+    .btn-cta-dark {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700;
+      padding: 14px 28px; border-radius: 8px;
+      background: var(--teal); color: var(--bg); border: none;
+      text-decoration: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; transition: all .2s;
+    }
+    .btn-cta-dark:hover { background: var(--teal2); transform: translateY(-1px); }
+
+    .btn-cta-outline {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700;
+      padding: 14px 28px; border-radius: 8px;
+      background: transparent; color: var(--navy-txt);
+      border: 2px solid #B3C8D8;
+      text-decoration: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; transition: all .2s;
+    }
+    .btn-cta-outline:hover { border-color: var(--teal2); color: var(--teal2); }
+
+    /* ── FOOTER ── */
+    footer { background: #020710; border-top: 1px solid rgba(255,255,255,.06); padding: 56px 52px 36px; }
+    .footer-inner { max-width: 1160px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px; }
+    .footer-brand p { font-size: 13px; color: rgba(255,255,255,.3); margin-top: 12px; max-width: 280px; line-height: 1.8; }
+    .footer-col h4 { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-lo); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 9px; }
+    .footer-col a { font-size: 14px; color: rgba(212,224,240,.35); text-decoration: none; font-weight: 500; transition: color .2s; }
+    .footer-col a:hover { color: var(--teal); }
+    .footer-cta-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; background: var(--teal); color: var(--bg); padding: 10px 18px; border-radius: 6px; text-decoration: none; transition: background .2s; }
+    .footer-cta-btn:hover { background: var(--teal2); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.06); padding-top: 22px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,.25); letter-spacing: .04em; }
+    .footer-bottom a { color: rgba(255,255,255,.25); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--teal); }
+    .status-dot::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #28CA41; margin-right: 6px; animation: pulse 2s infinite; vertical-align: middle; }
+
+    /* ── UTIL ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse  { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; height: auto; padding: 100px 24px 60px; }
+      .hero-right { padding-left: 0; }
+      .vant-grid { grid-template-columns: 1fr; }
+      .why-grid-w { grid-template-columns: 1fr; }
+      .perche-grid { grid-template-columns: 1fr; }
+      .chisiamo-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; gap: 40px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .cs-stats { grid-template-columns: 1fr 1fr; }
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .section { padding: 64px 24px; }
+    }
+    @media (max-width: 640px) {
+      .footer-top { grid-template-columns: 1fr; }
+      footer { padding: 40px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <svg width="126" height="28" viewBox="0 0 160 36" fill="none">
+    <text x="0" y="28" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="26" fill="white" letter-spacing="-0.5">DetraG</text>
+    <defs><linearGradient id="ng" x1="104" y1="28" x2="128" y2="4" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00CCCC"/><stop offset="50%" stop-color="#338ECC"/><stop offset="100%" stop-color="#6B3FD4"/></linearGradient></defs>
+    <circle cx="116" cy="16" r="13" fill="url(#ng)"/>
+    <circle cx="116" cy="16" r="7.5" fill="#050A14"/>
+    <path d="M111 21 L121 11 M121 11 L115 11 M121 11 L121 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <ul class="nav-links">
+    <li><a href="#vantaggi">Vantaggi</a></li>
+    <li><a href="#perche">Perché DetraGO</a></li>
+    <li><a href="#chisiamo">Chi siamo</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#form" class="btn-nav-ghost">Scopri di più</a>
+    <a href="#form" class="btn-nav-solid">Scopri di più →</a>
+  </div>
+</nav>
+
+
+<!-- ████████  HERO — FULL ABOVE THE FOLD  ████████ -->
+<section class="hero" id="top">
+  <div class="hud-corner hud-tl"></div>
+  <div class="hud-corner hud-tr"></div>
+  <div class="hud-corner hud-bl"></div>
+  <div class="hud-corner hud-br"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">E-commerce · Omnicanale · Bonifico istantaneo</div>
+
+    <h1><span>DetraGO.</span></h1>
+    <p class="hero-tagline">Il cliente detrae, tu vendi.</p>
+
+    <p class="hero-sub">
+      L'unico bonifico per detrazioni che semplifica il pagamento e ottimizza le vendite del tuo e-commerce.<br><br>
+      <strong>Integra ora DetraGO, il bonifico parlante istantaneo, e azzera l'abbandono dei carrelli sui prodotti in detrazione fiscale.</strong>
+    </p>
+
+    <div class="hero-cta-row">
+      <a href="#form" class="btn-hero btn-hero-primary">Scopri di più →</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-vantaggio">
+      <div class="hv-icon hv-icon-teal">⚡</div>
+      <div class="hv-text">
+        <strong>Pagamento istantaneo</strong>
+        <span>Il cliente paga e riceve il prodotto nello stesso momento. Zero attese.</span>
+      </div>
+    </div>
+    <div class="hero-vantaggio">
+      <div class="hv-icon hv-icon-violet">🧾</div>
+      <div class="hv-text">
+        <strong>Causale fiscale automatica</strong>
+        <span>DetraGO compila il bonifico parlante corretto per ogni tipologia di detrazione.</span>
+      </div>
+    </div>
+    <div class="hero-vantaggio">
+      <div class="hv-icon hv-icon-green">✅</div>
+      <div class="hv-text">
+        <strong>Checkout senza interruzioni</strong>
+        <span>Il cliente non esce mai dal tuo e-commerce. Le conversioni aumentano.</span>
+      </div>
+    </div>
+    <div class="hero-vantaggio">
+      <div class="hv-icon hv-icon-teal">🏛️</div>
+      <div class="hv-text">
+        <strong>Validato da Agenzia delle Entrate</strong>
+        <span>Il flusso DetraGO è stato confermato tramite interpello ufficiale.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scopri di più</span>
+    <div class="scroll-arrow"><div class="scroll-dot"></div></div>
+  </div>
+</section>
+
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="dot"></span>Ecobonus <strong>65%</strong> — riqualificazione energetica</div>
+    <div class="ticker-item"><span class="dot"></span>Bonus Casa <strong>50%</strong> — ristrutturazione</div>
+    <div class="ticker-item"><span class="dot"></span>Sismabonus <strong>80%</strong> — sicurezza sismica</div>
+    <div class="ticker-item"><span class="dot"></span>Bonus Mobili <strong>50%</strong> — acquisto arredi</div>
+    <div class="ticker-item"><span class="dot"></span>DetraGO <strong>validato</strong> da Agenzia delle Entrate</div>
+    <div class="ticker-item"><span class="dot"></span>DetraGO <strong>autorizzato</strong> da Banca d'Italia</div>
+    <div class="ticker-item"><span class="dot"></span>Ecobonus <strong>65%</strong> — riqualificazione energetica</div>
+    <div class="ticker-item"><span class="dot"></span>Bonus Casa <strong>50%</strong> — ristrutturazione</div>
+    <div class="ticker-item"><span class="dot"></span>Sismabonus <strong>80%</strong> — sicurezza sismica</div>
+    <div class="ticker-item"><span class="dot"></span>Bonus Mobili <strong>50%</strong> — acquisto arredi</div>
+    <div class="ticker-item"><span class="dot"></span>DetraGO <strong>validato</strong> da Agenzia delle Entrate</div>
+    <div class="ticker-item"><span class="dot"></span>DetraGO <strong>autorizzato</strong> da Banca d'Italia</div>
+  </div>
+</div>
+
+
+<!-- ████████  VIDEO — sfondo scuro  ████████ -->
+<div class="bg-dark">
+  <div class="section video-section">
+    <span class="sec-label">Video</span>
+    <h3 class="video-h">DetraGO: lo standard per l'incasso di prodotti detraibili</h3>
+    <div class="video-placeholder">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span class="video-note">// Video promozionale DetraGO</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ████████  VANTAGGI — SFONDO BIANCO  ████████ -->
+<section class="bg-white" id="vantaggi">
+  <div class="section">
+    <span class="sec-label dark">Vantaggi</span>
+    <h2 class="dark-h">Perché al tuo e-commerce<br>serve DetraGO?</h2>
+    <p class="vant-intro">Con DetraGO intercetti i flussi legati alle detrazioni fiscali e ti assicuri un vantaggio competitivo aumentando le conversioni.</p>
+    <p class="vant-italic">Non aspettare che i clienti te lo chiedano dopo averlo già provato dai competitor.</p>
+
+    <div class="vant-grid">
+      <div class="vant-box">
+        <span class="vb-icon">⚡</span>
+        <h3>Risparmio di tempo per i tuoi clienti e la tua attività</h3>
+        <p>Con DetraGO ottieni <strong>pagamenti con conferma in tempo reale</strong>, la <strong>consegna immediata dei prodotti</strong> e una <strong>riconciliazione automatizzata</strong>. Il tutto garantito da un'esperienza omnicanale fluida dall'inizio alla fine.</p>
+      </div>
+      <div class="vant-box">
+        <span class="vb-icon">🧾</span>
+        <h3>Pagamenti per detrazione automatizzati</h3>
+        <p>Con DetraGO <strong>riduci al minimo la tua assistenza al cliente</strong> grazie alla compilazione automatica, che lo guida in un <strong>flusso chiaro, conforme e già pronto per la detrazione</strong>.</p>
+      </div>
+    </div>
+
+    <div class="standard-block">
+      <h3 class="sb-head">Integra oggi ciò che domani sarà uno standard.</h3>
+      <p style="font-size:16px; font-weight:700; color:var(--navy-txt); margin-bottom:20px;">Perché adottare DetraGO ora:</p>
+
+      <div class="why-grid-w">
+        <div class="why-card-w">
+          <div class="why-icon-w wi-teal-w">🚀</div>
+          <div>
+            <h4>Differenziati ora</h4>
+            <p>Prima che questa diventi una soluzione diffusa sul mercato. Intercetta oggi i flussi più rilevanti dei prodotti fiscali e guadagna un vantaggio competitivo reale.</p>
+          </div>
+        </div>
+        <div class="why-card-w">
+          <div class="why-icon-w wi-violet-w">📈</div>
+          <div>
+            <h4>Aumenti le conversioni</h4>
+            <p>Sui prodotti fiscalmente detraibili, eliminando l'abbandono del carrello e trasformando l'attrito fiscale in un fattore di vantaggio.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="security-box-w">
+        <span class="sb-icon">🔒</span>
+        <div>
+          <h4>DetraGO: efficienza e sicurezza</h4>
+          <p>Ogni pagamento è eseguito in conformità alla normativa <strong>PSD2</strong>, con <strong>autenticazione forte</strong> del cliente (SCA) e piena <strong>tracciabilità del flusso</strong>.</p>
+          <p class="sec-note">Questo riduce il rischio operativo tutelando le tue vendite.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="#form" class="btn-cta-outline">Scopri DetraGO →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ████████  PERCHÉ DETRAGO — sfondo scuro  ████████ -->
+<section style="background:var(--bg);" id="perche">
+  <div class="section">
+    <span class="sec-label">Perché DetraGO</span>
+    <h2 class="light-h">DetraGO: mai più<br><span class="dim-dark">carrelli abbandonati.</span></h2>
+
+    <div class="perche-grid">
+      <div>
+        <p style="font-size:16px; font-weight:700; color:var(--text-hi); margin-bottom:6px;">I 5 motivi principali per cui oggi perdi conversioni</p>
+        <p style="font-size:14px; color:var(--text-lo); margin-bottom:4px;">Quando un tuo cliente acquista un prodotto fiscalmente detraibile:</p>
+
+        <div class="problem-list">
+          <div class="problem-item"><span class="prob-num">01</span><p><strong>Esce dal checkout</strong>, interrompendo il flusso d'acquisto.</p></div>
+          <div class="problem-item"><span class="prob-num">02</span><p>Compila <strong>manualmente</strong> tutti i campi del bonifico parlante, spesso senza sapere quali dati inserire.</p></div>
+          <div class="problem-item"><span class="prob-num">03</span><p>Sbaglia la <strong>causale</strong> o altri dati richiesti per la detrazione, generando errori e richieste di assistenza.</p></div>
+          <div class="problem-item"><span class="prob-num">04</span><p>Attende la <strong>conferma del pagamento</strong>, senza visibilità immediata sull'esito.</p></div>
+          <div class="problem-item"><span class="prob-num">05</span><p>Si stanca e <strong>abbandona il carrello</strong>, perché la procedura è lunga, complessa e poco intuitiva.</p></div>
+        </div>
+      </div>
+
+      <div class="solution-box">
+        <div class="sol-eyebrow">Con DetraGO oggi risolvi il problema</div>
+        <div class="sol-title">Il cliente paga in pochi secondi, senza mai uscire dal tuo e-commerce.</div>
+        <div class="sol-checks">
+          <div class="sol-check"><span class="ic">✅</span> Il checkout non si interrompe.</div>
+          <div class="sol-check"><span class="ic">✅</span> Il cliente paga in pochi secondi.</div>
+          <div class="sol-check"><span class="ic">✅</span> Il pagamento resta valido ai fini della detrazione fiscale.</div>
+          <div class="sol-check"><span class="ic">✅</span> Tu aumenti conversioni e incassi.</div>
+        </div>
+        <div class="sol-cta">
+          <a href="#form" class="btn-cta-dark" style="width:100%; justify-content:center;">Scopri DetraGO →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ████████  CHI SIAMO — SFONDO BIANCO  ████████ -->
+<section class="bg-off" id="chisiamo">
+  <div class="section">
+    <span class="sec-label dark">Chi siamo</span>
+    <div class="chisiamo-grid">
+      <div class="cs-body">
+        <h2 class="dark-h">CGN Fintech:<br><span class="dim-light">la prima fiscal fintech italiana.</span></h2>
+
+        <p>Siamo <strong>CGN Fintech</strong>, Istituto di pagamento autorizzato da Banca d'Italia e prima <strong>fiscal fintech</strong> in Italia.</p>
+        <p>Facciamo parte del <strong>Gruppo Servizi CGN</strong>, il principale service provider italiano nel mercato B2B della <strong>consulenza fiscale</strong> e del <strong>lavoro</strong>.</p>
+        <p>Dal <strong>2022</strong> digitalizziamo i <strong>pagamenti fiscali</strong> trasformando procedure complesse in processi semplici, sicuri e integrati, nel rispetto della normativa bancaria e fiscale vigente.</p>
+
+        <div class="cs-stats">
+          <div class="cs-stat"><div class="num">2022</div><div class="lbl">Fondazione</div></div>
+          <div class="cs-stat"><div class="num">30+</div><div class="lbl">Anni Gruppo CGN</div></div>
+          <div class="cs-stat"><div class="num">#1</div><div class="lbl">Fiscal fintech IT</div></div>
+          <div class="cs-stat"><div class="num">100%</div><div class="lbl">Conformità</div></div>
+        </div>
+
+        <div class="award-banner">
+          <span class="ab-icon">🏆</span>
+          <div class="ab-text">
+            <h4>Fintech Awards — Official Winner</h4>
+            <p>Riconoscimento ufficiale del settore fintech italiano</p>
+          </div>
+          <div class="ab-badge">WINNER<br>Innovation<br>of the Year<br>2026</div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:13px; font-weight:700; color:var(--muted-w); text-transform:uppercase; letter-spacing:.06em; margin-bottom:16px;">Conformità e certificazioni</p>
+        <div class="cert-accordion">
+          <details class="cert" open>
+            <summary class="cert-q">
+              <span class="cq-icon">🏛️</span>
+              Istituto di pagamento autorizzato da Banca d'Italia
+              <span class="cq-arrow">+</span>
+            </summary>
+            <div class="cert-body">Siamo iscritti nell'albo ufficiale degli Istituti di Pagamento. Operiamo sotto la supervisione della Banca d'Italia per garantire trasparenza e affidabilità.</div>
+          </details>
+          <details class="cert">
+            <summary class="cert-q">
+              <span class="cq-icon">📋</span>
+              Validato dall'Agenzia delle Entrate
+              <span class="cq-arrow">+</span>
+            </summary>
+            <div class="cert-body">La conformità normativa del processo DetraGO è stata confermata tramite interpello ufficiale presentato da CGN Fintech all'Agenzia delle Entrate.</div>
+          </details>
+          <details class="cert">
+            <summary class="cert-q">
+              <span class="cq-icon">🇪🇺</span>
+              Conformità PSD2
+              <span class="cq-arrow">+</span>
+            </summary>
+            <div class="cert-body">Adottiamo i requisiti della direttiva europea sui servizi di pagamento, con autenticazione forte (SCA) e piena tracciabilità del flusso di pagamento.</div>
+          </details>
+          <details class="cert">
+            <summary class="cert-q">
+              <span class="cq-icon">🔒</span>
+              Certificazione ISO 27001
+              <span class="cq-arrow">+</span>
+            </summary>
+            <div class="cert-body">La sicurezza delle informazioni è garantita dallo standard internazionale più riconosciuto, con processi e controlli progettati per proteggere dati sensibili e operazioni.</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ████████  FAQ — sfondo scuro  ████████ -->
+<section style="background:var(--bg2); border-top:1px solid var(--border2);" id="faq">
+  <div class="section">
+    <span class="sec-label">FAQ</span>
+    <h2 class="light-h">Le domande più frequenti<br><span class="dim-dark">dei merchant.</span></h2>
+
+    <div class="faq-list">
+
+      <details class="faq">
+        <summary class="faq-q">
+          <span class="faq-num">1</span>
+          <div>
+            <div class="faq-title">Conformità del flusso</div>
+            <div class="faq-sub">Quali garanzie offre il flusso sul diritto alla detrazione fiscale dell'acquirente?</div>
+          </div>
+          <span class="faq-arrow">+</span>
+        </summary>
+        <div class="faq-body">Il flusso è stato <strong>validato dall'Agenzia delle Entrate</strong> tramite risposta a uno specifico interpello presentato da CGN Fintech. Inoltre, la <strong>Banca d'Italia ha autorizzato CGN Fintech</strong> a prestare il servizio di esecuzione di pagamenti per questo specifico caso d'uso, necessario a completare il processo.</div>
+      </details>
+
+      <details class="faq">
+        <summary class="faq-q">
+          <span class="faq-num">2</span>
+          <div>
+            <div class="faq-title">Tempi dell'operazione</div>
+            <div class="faq-sub">In quanto tempo si completa l'operazione di pagamento?</div>
+          </div>
+          <span class="faq-arrow">+</span>
+        </summary>
+        <div class="faq-body">Il processo si basa sull'utilizzo di <strong>bonifici istantanei</strong>, quindi l'operazione si completa in <strong>pochi secondi</strong>. Il cliente seleziona la banca, autorizza il pagamento tramite autenticazione forte (SCA), e il bonifico viene eseguito istantaneamente — senza attese e senza uscire dal checkout.</div>
+      </details>
+
+      <details class="faq">
+        <summary class="faq-q">
+          <span class="faq-num">3</span>
+          <div>
+            <div class="faq-title">Documenti per la detrazione</div>
+            <div class="faq-sub">Quale documentazione viene fornita al cliente per portare in detrazione la spesa?</div>
+          </div>
+          <span class="faq-arrow">+</span>
+        </summary>
+        <div class="faq-body">L'acquirente riceverà <strong>due ricevute</strong>: la prima attesta l'esecuzione del pagamento; successivamente verrà emessa la <strong>ricevuta valida ai fini della detrazione fiscale</strong>, completa di tutti gli elementi previsti dalla normativa di settore.</div>
+      </details>
+
+      <details class="faq">
+        <summary class="faq-q">
+          <span class="faq-num">4</span>
+          <div>
+            <div class="faq-title">Accelerazione normativa</div>
+            <div class="faq-sub">Perché conviene integrare DetraGO oggi?</div>
+          </div>
+          <span class="faq-arrow">+</span>
+        </summary>
+        <div class="faq-body">Con l'attuazione della direttiva europea <strong>"Case Green"</strong>, è prevista una crescita elevata della domanda su interventi e beni per l'efficienza energetica. Integrare DetraGO significa essere pronti per <strong>intercettare volumi e opportunità in anticipo</strong>, con un vantaggio competitivo reale sui competitor.</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ████████  FORM — sfondo scuro  ████████ -->
+<section class="form-section" id="form">
+  <div class="section">
+    <div class="form-grid">
+      <div>
+        <span class="sec-label">Form</span>
+        <h2 class="light-h">Scopri come integrare DetraGO<br><span class="dim-dark">nel tuo business.</span></h2>
+        <p class="lead-light"><strong>Compila il form.</strong> Il nostro team valuterà la tua richiesta e ti contatterà per costruire insieme il servizio su misura per te. Ti invitiamo a farlo quanto prima per garantirti un <strong>supporto prioritario.</strong></p>
+        <div class="form-left-perks">
+          <div class="form-perk"><span class="fp-dot"></span>Consulenza gratuita e senza impegno</div>
+          <div class="form-perk"><span class="fp-dot"></span>Integrazione su misura per il tuo e-commerce</div>
+          <div class="form-perk"><span class="fp-dot"></span>Team di supporto dedicato</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Parliamo del tuo progetto</h3>
+        <p class="fc-sub">I campi con <strong>*</strong> sono obbligatori.</p>
+
+        <form action="mailto:cgnfintechbusiness@cgn.it" method="post">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome e cognome <span>*</span></label>
+              <input type="text" placeholder="Mario Rossi" required/>
+            </div>
+            <div class="form-group">
+              <label>Azienda <span>*</span></label>
+              <input type="text" placeholder="Acme S.r.l." required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Ruolo in azienda</label>
+            <input type="text" placeholder="Direttore e-commerce"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email <span>*</span></label>
+              <input type="email" placeholder="mario@acme.it" required/>
+            </div>
+            <div class="form-group">
+              <label>Telefono <span>*</span></label>
+              <input type="tel" placeholder="+39 02 1234567" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Vuoi darci qualche info in più?</label>
+            <textarea placeholder="Per risponderti al meglio, aiutaci a capire le tue esigenze…"></textarea>
+          </div>
+          <button type="submit" class="form-submit">Invia richiesta →</button>
+          <p class="form-privacy">Inviando il modulo accetti la nostra <a href="#">Privacy Policy</a>. I tuoi dati non saranno condivisi con terze parti.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ████████  FOOTER  ████████ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <svg width="108" height="24" viewBox="0 0 160 36" fill="none">
+          <text x="0" y="28" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="26" fill="white" letter-spacing="-0.5">DetraG</text>
+          <defs><linearGradient id="fg" x1="104" y1="28" x2="128" y2="4" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00CCCC"/><stop offset="50%" stop-color="#338ECC"/><stop offset="100%" stop-color="#6B3FD4"/></linearGradient></defs>
+          <circle cx="116" cy="16" r="13" fill="url(#fg)"/>
+          <circle cx="116" cy="16" r="7.5" fill="#020710"/>
+          <path d="M111 21 L121 11 M121 11 L115 11 M121 11 L121 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p>CGN Fintech S.r.l. · Istituto di Pagamento autorizzato da Banca d'Italia · Il primo bonifico parlante istantaneo per le detrazioni fiscali.</p>
+
+        <div style="margin-top:20px; background:rgba(0,204,204,.08); border:1px solid rgba(0,204,204,.2); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px;">
+          <span style="font-size:24px;">🏆</span>
+          <div>
+            <div style="font-size:12px; font-weight:800; color:#FFFFFF; margin-bottom:2px;">Fintech Awards 2026</div>
+            <div style="font-size:11px; color:var(--teal); font-weight:700;">Winner — Innovation of the Year</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Pagina</h4>
+        <ul>
+          <li><a href="#vantaggi">Vantaggi</a></li>
+          <li><a href="#perche">Perché DetraGO</a></li>
+          <li><a href="#chisiamo">Chi siamo</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <ul>
+          <li><a href="mailto:cgnfintechbusiness@cgn.it">cgnfintechbusiness@cgn.it</a></li>
+          <li><a href="#">Gruppo Servizi CGN</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Scopri DetraGO</h4>
+        <ul>
+          <li><a href="#form" class="footer-cta-btn">Scopri di più →</a></li>
+        </ul>
+        <ul style="margin-top:16px;">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Termini e Condizioni</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 CGN Fintech S.r.l. · P.IVA 01234567890 · Milano</span>
+      <span><span class="status-dot"></span>All systems operational</span>
+      <span><a href="#">Privacy</a> · <a href="#">Termini</a> · <a href="#">Cookie</a></span>
+    </div>
+  </div>
+</footer>
+
+
+<style>
+  /* ── STATO INIZIALE: elementi nascosti prima dell'animazione ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity .65s cubic-bezier(.22,.61,.36,1),
+                transform .65s cubic-bezier(.22,.61,.36,1);
+  }
+  .reveal.reveal-left {
+    transform: translateX(-36px);
+  }
+  .reveal.reveal-right {
+    transform: translateX(36px);
+  }
+  .reveal.reveal-scale {
+    transform: scale(.94) translateY(16px);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none !important;
+  }
+
+  /* Delay in cascata per elementi figli */
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .55s cubic-bezier(.22,.61,.36,1),
+                transform .55s cubic-bezier(.22,.61,.36,1);
+  }
+  .reveal-stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: .05s; }
+  .reveal-stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: .15s; }
+  .reveal-stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: .25s; }
+  .reveal-stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: .35s; }
+  .reveal-stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: .45s; }
+  .reveal-stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay: .55s; }
+
+  /* Line animata: si estende da sx a dx */
+  .reveal-line {
+    width: 0;
+    transition: width .8s cubic-bezier(.22,.61,.36,1);
+  }
+  .reveal-line.visible { width: 100%; }
+
+  /* Counter animato */
+  .counter-num {
+    display: inline-block;
+    transition: transform .4s ease;
+  }
+
+  /* Glow pulse sulle card quando entrano */
+  @keyframes cardGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(0,204,204,0); }
+    50%  { box-shadow: 0 0 32px 4px rgba(0,204,204,.18); }
+    100% { box-shadow: 0 0 0 0 rgba(0,204,204,0); }
+  }
+  .reveal.visible.do-glow {
+    animation: cardGlow .9s ease .4s both;
+  }
+
+  /* Ticker pausa su hover */
+  .ticker-track:hover { animation-play-state: paused; }
+</style>
+
+<script>
+(function() {
+  /* ─── 1. IntersectionObserver per .reveal e .reveal-stagger ─── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), Number(delay));
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  /* ─── 2. Applicazione classi agli elementi esistenti ─── */
+  function setupAnimations() {
+
+    /* TICKER — già visibile, nessuna animazione */
+
+    /* SEZIONE VIDEO */
+    const videoSection = document.querySelector('.video-section');
+    if (videoSection) {
+      videoSection.querySelector('h3').classList.add('reveal');
+      videoSection.querySelector('.video-placeholder').classList.add('reveal', 'reveal-scale');
+      videoSection.querySelector('.video-placeholder').dataset.delay = '150';
+    }
+
+    /* VANTAGGI — sezione bianca */
+    const vantIntro = document.querySelector('.vant-intro');
+    if (vantIntro) {
+      ['.vant-intro', '.vant-sub', '.vant-italic'].forEach(s => {
+        const el = document.querySelector(s);
+        if (el) el.classList.add('reveal');
+      });
+    }
+
+    /* Box vantaggi — stagger */
+    const vantGrid = document.querySelector('.vant-grid');
+    if (vantGrid) {
+      vantGrid.classList.add('reveal-stagger');
+    }
+
+    /* Standard block + why grid */
+    const standardBlock = document.querySelector('.standard-block');
+    if (standardBlock) {
+      standardBlock.querySelector('.sb-head').classList.add('reveal');
+      const whyGrid = standardBlock.querySelector('.why-grid-w');
+      if (whyGrid) whyGrid.classList.add('reveal-stagger');
+      const secBox = standardBlock.querySelector('.security-box-w');
+      if (secBox) { secBox.classList.add('reveal', 'do-glow'); secBox.dataset.delay = '200'; }
+    }
+
+    /* PERCHÉ DETRAGO */
+    const percheSection = document.querySelector('#perche');
+    if (percheSection) {
+      percheSection.querySelector('h2') && percheSection.querySelector('h2').classList.add('reveal', 'reveal-left');
+      const problemList = percheSection.querySelector('.problem-list');
+      if (problemList) {
+        Array.from(problemList.querySelectorAll('.problem-item')).forEach((item, i) => {
+          item.classList.add('reveal');
+          item.dataset.delay = i * 80;
+        });
+      }
+      const solBox = percheSection.querySelector('.solution-box');
+      if (solBox) {
+        solBox.classList.add('reveal', 'reveal-right');
+        solBox.dataset.delay = '200';
+        const checks = solBox.querySelectorAll('.sol-check');
+        checks.forEach((c, i) => {
+          c.style.opacity = '0';
+          c.style.transform = 'translateX(16px)';
+          c.style.transition = `opacity .4s ease ${.5 + i*.1}s, transform .4s ease ${.5 + i*.1}s`;
+        });
+        /* Quando solBox diventa visible, anima i check */
+        const solIo = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              solBox.querySelectorAll('.sol-check').forEach(c => {
+                c.style.opacity = '1';
+                c.style.transform = 'none';
+              });
+              solIo.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        solIo.observe(solBox);
+      }
+    }
+
+    /* CHI SIAMO */
+    const chiSection = document.querySelector('#chisiamo');
+    if (chiSection) {
+      const csBody = chiSection.querySelector('.cs-body');
+      if (csBody) { csBody.classList.add('reveal', 'reveal-left'); }
+      const certAcc = chiSection.querySelector('.cert-accordion');
+      if (certAcc) { certAcc.classList.add('reveal', 'reveal-right'); certAcc.dataset.delay = '150'; }
+      const csStats = chiSection.querySelector('.cs-stats');
+      if (csStats) {
+        csStats.classList.add('reveal');
+        csStats.dataset.delay = '100';
+      }
+      const awardBanner = chiSection.querySelector('.award-banner');
+      if (awardBanner) { awardBanner.classList.add('reveal', 'do-glow'); awardBanner.dataset.delay = '300'; }
+    }
+
+    /* FAQ */
+    const faqSection = document.querySelector('#faq');
+    if (faqSection) {
+      faqSection.querySelector('h2') && faqSection.querySelector('h2').classList.add('reveal');
+      const faqs = faqSection.querySelectorAll('details.faq');
+      faqs.forEach((faq, i) => {
+        faq.classList.add('reveal');
+        faq.dataset.delay = i * 100;
+      });
+    }
+
+    /* FORM */
+    const formSection = document.querySelector('#form');
+    if (formSection) {
+      const formLeft = formSection.querySelector('.form-grid > div:first-child');
+      const formCard = formSection.querySelector('.form-card');
+      if (formLeft) { formLeft.classList.add('reveal', 'reveal-left'); }
+      if (formCard) { formCard.classList.add('reveal', 'reveal-right'); formCard.dataset.delay = '150'; }
+    }
+
+    /* Hero vantaggi — stagger (già dentro hero ma visibili solo dopo scroll su mobile) */
+    const heroRight = document.querySelector('.hero-right');
+    if (heroRight) heroRight.classList.add('reveal-stagger');
+
+    /* Registra tutto con l'observer */
+    document.querySelectorAll('.reveal, .reveal-stagger, .reveal-line').forEach(el => io.observe(el));
+  }
+
+  /* ─── 3. Counter animato per le stats ─── */
+  function animateCounters() {
+    const stats = document.querySelectorAll('.cs-stat .num');
+    const counterIo = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const raw = el.textContent.trim();
+        /* Estrai numero e suffisso */
+        const match = raw.match(/^([#<]?)(\d+)([+%]?)$/);
+        if (!match) return;
+        const prefix = match[1];
+        const end = parseInt(match[2]);
+        const suffix = match[3];
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          /* easeOutExpo */
+          const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.round(ease * end);
+          el.textContent = prefix + current + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        counterIo.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+
+    stats.forEach(el => counterIo.observe(el));
+  }
+
+  /* ─── 4. Effetto parallasse leggero sull'hero ─── */
+  function setupParallax() {
+    const heroLeft = document.querySelector('.hero-left');
+    const heroGlow = document.querySelector('.hero::after');
+    if (!heroLeft) return;
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y < window.innerHeight) {
+          heroLeft.style.transform = `translateY(${y * .12}px)`;
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }, { passive: true });
+  }
+
+  /* ─── 5. Highlight nav link attivo ─── */
+  function setupNavHighlight() {
+    const sections = ['vantaggi', 'perche', 'chisiamo', 'faq', 'form'];
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const secIo = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === `#${id}` ? 'var(--teal)' : '';
+        });
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) secIo.observe(el);
+    });
+  }
+
+  /* ─── Init ─── */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAnimations();
+      animateCounters();
+      setupParallax();
+      setupNavHighlight();
+    });
+  } else {
+    setupAnimations();
+    animateCounters();
+    setupParallax();
+    setupNavHighlight();
+  }
+})();
+</script>
+
+</body>
+</html>
